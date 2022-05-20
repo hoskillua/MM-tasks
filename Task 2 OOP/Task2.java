@@ -1,16 +1,23 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+
 
 public class Task2 {
     public static class API {
         ArrayList<Topology> topologies = new ArrayList<Topology>();
-
-        
         // Req 1
-        public void ReedJSON(String fileName) {
-
+        public void readJSON(String fileName) {
+            Topology topology = new Topology();
+            topology.readJSON(fileName);
+            topologies.add(topology);
         }
 
         // Req 2.1
@@ -77,6 +84,55 @@ public class Task2 {
         public Topology(String id, ArrayList<Component> components) {
             this.id = id;
             this.components = components;
+        }
+
+        // Req 1.2
+        public void readJSON(String fileName){
+            String data = "";
+            try {
+                File file = new File(fileName);
+                Scanner reader = new Scanner(file);
+                while (reader.hasNextLine()) {
+                  data += reader.nextLine();
+                }
+                reader.close();
+
+            } catch (FileNotFoundException e) {
+              System.out.println("An error occurred.");
+              e.printStackTrace();
+            }
+
+            try {
+                JSONObject jsonObj =  new JSONObject(data);
+                this.id = jsonObj.get("id").toString();
+                JSONArray jsonArray = jsonObj.getJSONArray("components");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    Component component = new Component();
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    component.setId(jsonObject.get("id").toString());
+                    component.setType(jsonObject.get("type").toString());
+                    Value value = new Value();
+                    String key = component.getValueTypeFromType();
+
+                    value.setDefaultValue(jsonObject.getJSONObject(key).getDouble("default"));
+                    value.setMinValue(jsonObject.getJSONObject(key).getDouble("min"));
+                    value.setMaxValue(jsonObject.getJSONObject(key).getDouble("max"));
+                    component.setValue(value);
+
+                    JSONObject netlistJSON = jsonObject.getJSONObject("netlist");
+                    HashMap<String, String> netlist = new HashMap<String, String>();
+
+                    for(int j = 0; j < netlistJSON.length(); j++){
+                        netlist.put(netlistJSON.names().get(j).toString(),
+                                    netlistJSON.get(netlistJSON.names().get(j).toString()).toString());
+                    }
+                    component.setNetlist(netlist);
+                    components.add(component);
+                }
+            } catch (Exception e) {
+                System.out.println("An error occurred.");
+                e.printStackTrace();
+            }
         }
 
         // Req 2.2
@@ -150,24 +206,7 @@ public class Task2 {
 
         // Req 2.3
         public String getJSON() {
-            String JSON = "{\"type\":\"" + type + "\",\"id\":\"" + id;
-            switch(type)
-            {
-                case "resistor":
-                    JSON += "\",\"resistance\":";
-                    break;
-                case "capacitor":
-                    JSON += "\",\"capacitance\":";
-                    break;
-                case "inductor":
-                    JSON += "\",\"inductance\":";
-                    break;
-                case "nmos":
-                case "pmos":
-                    JSON += "\",\"m(l)\":";
-                    break;
-            }
-            JSON += value.toString() + ",\"netlist\":{";
+            String JSON = "{\"type\":\"" + type + "\",\"id\":\"" + id + "\",\"" + getValueTypeFromType() + "\":" + value.toString() + ",\"netlist\":{";
             for (String key : netlist.keySet()) {
                 JSON += "\"" + key + "\":\"" + netlist.get(key) + "\", ";
             }
@@ -187,6 +226,22 @@ public class Task2 {
         }
 
         // Helper Functions
+        public String getValueTypeFromType(){
+            switch(type)
+            {
+                case "resistor":
+                    return "resistance";
+                case "capacitor":
+                    return "capacitance";
+                case "inductor":
+                    return "inductance";
+                case "nmos":
+                case "pmos":
+                    return "m(l)";
+            }
+            return "value";
+        }
+
         public String getNode(String name) {
             return netlist.get(name);
         }
@@ -275,30 +330,35 @@ public class Task2 {
     }
 
     public static void main(String[] args) {
-        Value resistance = new Value(100, 10, 1000);
-        Value m1 = new Value(1.5, 1, 2);
-        
-        Component resistor = new Component();
-        Component nmos = new Component();
+        API api = new API();
 
-        resistor.setValue(resistance);
-        resistor.setType("resistor");
-        resistor.setId("res1");
-        resistor.addNode("t1", "vdd");
-        resistor.addNode("t2", "n1");
+        // Testing Requirements: 
+        // Req 1 & 2
+        // top1.JSON should be identical to input.JSON
+        api.readJSON("input.JSON");
+        api.writeJSON("top1");
 
-        nmos.setValue(m1);
-        nmos.setType("nmos");
-        nmos.setId("m1");
-        nmos.addNode("drain", "n1");
-        nmos.addNode("gate", "vin");
-        nmos.addNode("source", "vss");
 
-        Topology topology = new Topology();
-        topology.setId("top1");
-        topology.addComponent(resistor);
-        topology.addComponent(nmos);
+        // Req 5
+        // should have 2 components (resistor, nmos) in top1
+        ArrayList<Component> components = api.quaryDevices("top1");
+        System.out.println("Req 5: " + components.size());
+        for (Component component : components) {
+            System.out.println(component.getType() + " " + component.getId());
+        }
 
-        topology.writeJSON();
+        // Req 6
+        // should have 2 components (resistor, nmos) connected to n1
+        ArrayList<Component> components2 = api.quaryDevicesWithNetlistNode("top1", "n1");
+        System.out.println("Req 6: " + components2.size());
+        for (Component component : components2) {
+            System.out.println(component.getType() + " " + component.getId());
+        }
+
+        // Req 3 & 4
+        // should output 1 and then 0
+        System.out.println("Req 3,4: " + api.quaryTopologies().size());
+        api.deleteTopology(api.quaryTopologies().get(0).getId());
+        System.out.println("Req 3,4: " + api.quaryTopologies().size());
     }
 }

@@ -6,7 +6,7 @@
 
 ### Solution
 As in Task3.cpp, I have implemented a `Flattened3DMat` class. It can create a vector from an already created 3D matrix or a dimension specification.
-I have also implemented `at(i,j,k)` which is used for indexing (both reading and writing). 
+I have also implemented `at(i,j,k)` which is used for indexing (both reading and writing).
 In addition to this, I implemented some other helper functions for conversion from and to a 3D matrix and a function to fill the vector according to a passed function in terms of `i, j, k`.
 
 ### Results
