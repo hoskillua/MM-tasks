@@ -32,9 +32,6 @@ struct Flattened3DMat {
 
 	/// Req 2: Indexing
 	inline DataType &at(int i, int j, int k) {
-		i = std::max(i, 0);
-		j = std::max(j, 0);
-		k = std::max(k, 0);
 		return data.at(i * m * p + j * p + k);
 	}
 
