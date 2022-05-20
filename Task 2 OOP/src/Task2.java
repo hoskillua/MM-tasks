@@ -8,12 +8,18 @@ import java.util.Scanner;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
-
 public class Task2 {
+    /**
+    * The Api class is used to store all toplogies and their information.
+    */
     public static class API {
         ArrayList<Topology> topologies = new ArrayList<Topology>();
+
         // Req 1
+        /**
+         * The readJSON method is used to read a new topology from a JSON file and add it to the list of topologies.
+         * @param fileName The name of the JSON file.
+         */
         public void readJSON(String fileName) {
             Topology topology = new Topology();
             topology.readJSON(fileName);
@@ -21,6 +27,10 @@ public class Task2 {
         }
 
         // Req 2.1
+        /**
+         * the writeJSON method is used to write a topology to a JSON file.
+         * @param topologyId The id of the topology to be written.
+         */
         public void writeJSON(String topologyId) {
             Topology topology = getTopologyWithId(topologyId);
             if (topology != null) {
@@ -29,11 +39,19 @@ public class Task2 {
         }
 
         // Req 3
+        /**
+         * The quaryTopologies method is used to quary all topologies and return them as an Arraylist.
+         * @return The Arraylist of all topologies.
+         */
         public ArrayList<Topology> quaryTopologies() {
             return topologies;
         }
 
         // Req 4
+        /**
+         * the deleteTopology method is used to delete a topology from the list of topologies.
+         * @param topologyId The id of the topology to be deleted.
+         */
         public void deleteTopology(String topologyId) {
             Topology topology = getTopologyWithId(topologyId);
             if (topology != null)
@@ -41,6 +59,11 @@ public class Task2 {
         }
 
         // Req 5
+        /**
+         * the quaryDevices method is used to quary all devices in a topology and return them as an Arraylist.
+         * @param topologyId The id
+         * @return The Arraylist of all devices.
+         */
         public ArrayList<Component> quaryDevices(String topologyId) {
             ArrayList<Component> components = new ArrayList<Component>();
             Topology topology = getTopologyWithId(topologyId);
@@ -50,6 +73,13 @@ public class Task2 {
         }
 
         // Req 6.1
+        /**
+         * the quaryDevicesWithNetlistNode method is used to quary devices connected to a specific node
+         * in a topology and return them as an Arraylist
+         * @param topologyId The id
+         * @param nodeId The id of the node
+         * @return The Arraylist of such devices.
+         */
         public ArrayList<Component> quaryDevicesWithNetlistNode(String topologyId, String nodeId) {
             ArrayList<Component> components = new ArrayList<Component>();
             Topology topology = getTopologyWithId(topologyId);
@@ -59,10 +89,19 @@ public class Task2 {
         }
 
         // Helper Functions
+        /**
+         * the addTopology method is used to add a topology to the list of topologies.
+         * @param topology
+         */
         public void addTopology(Topology topology){
             topologies.add(topology);
         }
 
+        /**
+         * the getTopologyWithId method is used to get a topology with a specific id.
+         * @param topologyId
+         * @return The topology with the specific id.
+         */
         public Topology getTopologyWithId(String topologyId) {
             for (Topology topology : topologies) {
                 if (topology.getId().equals(topologyId)) {
@@ -87,6 +126,10 @@ public class Task2 {
         }
 
         // Req 1.2
+        /**
+         * The readJSON method is used to read a new topology from a JSON file and add it to the list of topologies.
+         * @param fileName The name of the JSON file.
+         */
         public void readJSON(String fileName){
             String data = "";
             try {
@@ -136,6 +179,9 @@ public class Task2 {
         }
 
         // Req 2.2
+        /**
+         * the writeJSON method is used to write a topology to a JSON file.
+         */
         public void writeJSON() {
             try {
                 FileWriter writer = new FileWriter(id + ".JSON");
@@ -156,6 +202,12 @@ public class Task2 {
         }
 
         // Req 6.2
+        /**
+         * the quaryDevicesWithNetlistNode method is used to quary devices connected to a specific node
+         * in a topology and return them as an Arraylist
+         * @param nodeId The id of the node
+         * @return The Arraylist of such devices.
+         */
         public ArrayList<Component> quaryDevicesWithNetlistNode(String nodeId) {
             ArrayList<Component> filteredComponents = new ArrayList<Component>();
             for (Component component : this.components) {
@@ -167,6 +219,10 @@ public class Task2 {
         }
 
         // Helper Functions
+        /**
+         * the getComponents method is used to get the list of components in a topology.
+         * @return The list of components.
+         */
         public ArrayList<Component> getComponents() {
             return components;
         }
@@ -175,14 +231,26 @@ public class Task2 {
             return id;
         }
 
+        /**
+         * the setComponents method is used to set the list of components in a topology.
+         * @param components The list of components.
+         */
         public void setComponents(ArrayList<Component> components) {
             this.components = components;
         }
 
+        /**
+         * the setId method is used to set the id of a topology.
+         * @param id The id of the topology.
+         */
         public void setId(String id) {
             this.id = id;
         }
 
+        /**
+         * the addComponent method is used to add a component to the list of components.
+         * @param component The component to be added.
+         */
         public void addComponent(Component component) {
             components.add(component);
         }
@@ -205,6 +273,10 @@ public class Task2 {
         }
 
         // Req 2.3
+        /**
+         * the getJSON method is used to get the JSON representation of a component.
+         * @return The JSON representation of a component.
+         */
         public String getJSON() {
             String JSON = "{\"type\":\"" + type + "\",\"id\":\"" + id + "\",\"" + getValueTypeFromType() + "\":" + value.toString() + ",\"netlist\":{";
             for (String key : netlist.keySet()) {
@@ -217,6 +289,11 @@ public class Task2 {
         }
 
         // Req 6.3
+        /**
+         * the hasNode method is used to check if a component has a specific node.
+         * @param node The id of the node.
+         * @return True if the component has the node, false otherwise.
+         */
         public Boolean hasNode(String node) {
             for (String key : netlist.keySet()) {
                 if (netlist.get(key).equals(node))
@@ -226,6 +303,10 @@ public class Task2 {
         }
 
         // Helper Functions
+        /**
+         * the getValueTypeFromType method is used to get the value type of a component from its type.
+         * @return The value type of a component.
+         */
         public String getValueTypeFromType(){
             switch(type)
             {
@@ -241,15 +322,7 @@ public class Task2 {
             }
             return "value";
         }
-
-        public String getNode(String name) {
-            return netlist.get(name);
-        }
-
-        public void addNode(String name, String node) {
-            netlist.put(name, node);
-        }
-
+    
         public void setValue(Value value) {
             this.value = value;
         }
@@ -299,11 +372,15 @@ public class Task2 {
         }
 
         // Req 2.4
+        /**
+         * the toString method is used to get the string representation of a value.
+         * @return The string representation of a value.
+         */
         public String toString() {
             return ("{\"default\":" + defaultValue + ",\"min\":" + minValue + ",\"max\":"
                     + maxValue + "}");
         }
-
+        
         public double getDefaultValue() {
             return defaultValue;
         }
